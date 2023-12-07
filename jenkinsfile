@@ -7,8 +7,6 @@ pipeline {
         stage('SonarQube Analysis') {
             steps {
                 script {
-                    git 'https://github.com/MuhamadKholik23/customer-service.git'
-
                     // Menjalankan analisis SonarQube
                     withSonarQubeEnv('SonarQubeServer') {
                         sh "${tool name: env.MVN_HOME, type: 'maven'}/bin/mvn clean install"
