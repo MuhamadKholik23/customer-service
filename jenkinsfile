@@ -1,0 +1,23 @@
+pipeline {
+    agent any
+    environment {
+            MVN_HOME = 'mvn'
+        }
+    stages {
+        stage('SonarQube Analysis') {
+            steps {
+                withSonarQubeEnv('SonarQube') {
+                    sh "${tool name: env.MVN_HOME, type: 'maven'}/bin/mvn clean install"
+                    sh "${tool name: env.MVN_HOME, type: 'maven'}/bin/mvn clean package verify sonar:sonar"
+                    echo 'SonarQube Analysis Completed'
+                }
+            }
+        }
+        stage("Quality Gate") {
+            steps {
+                waitForQualityGate abortPipeline: true
+                echo 'Quality Gate Completed'
+            }
+        }
+    }
+}
