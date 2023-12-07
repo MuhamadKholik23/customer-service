@@ -35,11 +35,7 @@ public class CustomerController {
     @GetMapping("/getAllCustomer")
     public ResponseEntity<List<Customer>> getAllCustomers() {
         List<Customer> customers = customerServices.findAll();
-        if(customers != null){
-            return ResponseEntity.ok(customers);
-        }else{
-            return ResponseEntity.notFound().build();
-        }
+        return ResponseEntity.ok(customers);
     }
 
     @DeleteMapping("/deleteCustomer={customerId}")
