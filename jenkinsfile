@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        MVN_HOME = '/path/to/your/maven_home'
+        MVN_HOME = 'mvn'
     }
 
     stages {
