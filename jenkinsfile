@@ -7,19 +7,17 @@ pipeline {
         stage('SonarQube Analysis') {
             steps {
                 script {
-                    // Menjalankan analisis SonarQube
-                    withSonarQubeEnv ('SonarServer'){
-                        sh "${tool name: env.MVN_HOME, type: 'maven'}/bin/mvn clean install"
+                    withSonarQubeEnv('SonarServer') {
                         sh "${tool name: env.MVN_HOME, type: 'maven'}/bin/mvn clean verify sonar:sonar"
-                        echo 'SonarQube Analysis Completed'
                     }
                 }
             }
         }
         stage("Quality Gate") {
             steps {
-                waitForQualityGate abortPipeline: true
-                echo 'Quality Gate Completed'
+                timeout(time: 1, unit: 'HOURS') {
+                    waitForQualityGate abortPipeline: true
+                }
             }
         }
     }
