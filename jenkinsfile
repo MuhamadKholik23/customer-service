@@ -8,9 +8,9 @@ pipeline {
             steps {
                 script {
                     // Menjalankan analisis SonarQube
-                    withSonarQubeEnv {
+                    withSonarQubeEnv ('SonarServer'){
                         sh "${tool name: env.MVN_HOME, type: 'maven'}/bin/mvn clean install"
-                        sh "${tool name: env.MVN_HOME, type: 'maven'}/bin/mvn clean verify sonar:sonar -D sonar.projectSettings=sonar-project.properties"
+                        sh "${tool name: env.MVN_HOME, type: 'maven'}/bin/mvn clean verify sonar:sonar"
                         echo 'SonarQube Analysis Completed'
                     }
                 }
