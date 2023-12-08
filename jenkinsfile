@@ -1,17 +1,25 @@
 pipeline {
     agent any
-
     environment {
         MVN_HOME = 'mvn'
     }
-
     stages {
-
-        stage('Run Spring Boot Application') {
+        stage('SonarQube Analysis') {
             steps {
-                // Menjalankan aplikasi Spring Boot dengan Maven
-                sh "${tool name: env.MVN_HOME, type: 'maven'}/bin/mvn clean install"
-                sh "${tool name: env.MVN_HOME, type: 'maven'}/bin/mvn spring-boot:run"
+                script {
+                    // Menjalankan analisis SonarQube
+                    withSonarQubeEnv {
+                        sh "${tool name: env.MVN_HOME, type: 'maven'}/bin/mvn clean install"
+                        sh "${tool name: env.MVN_HOME, type: 'maven'}/bin/mvn clean verify sonar:sonar -D sonar.projectSettings=sonar-project.properties"
+                        echo 'SonarQube Analysis Completed'
+                    }
+                }
+            }
+        }
+        stage("Quality Gate") {
+            steps {
+                waitForQualityGate abortPipeline: true
+                echo 'Quality Gate Completed'
             }
         }
     }
