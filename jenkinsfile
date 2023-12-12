@@ -3,15 +3,21 @@ pipeline {
     environment {
         MVN_HOME = 'mvn'
     }
+
     stages {
+        stage('Git Checkout') {
+            steps {
+                checkout scmGit(branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/MuhamadKholik23/customer-service.git']])
+                sh "${tool name: env.MVN_HOME, type: 'maven'}/bin/mvn clean install"
+                echo 'Git Checkout Completed'
+            }
+        }
         stage('SonarQube Analysis') {
             steps {
-                script {
-                    // Menjalankan analisis SonarQube
-                    withSonarQubeEnv ('SonarServer'){
-                        sh "${tool name: env.MVN_HOME, type: 'maven'}/bin/mvn clean verify sonar:sonar"
-                        echo 'SonarQube Analysis Completed'
-                    }
+                withSonarQubeEnv('SonarQube') {
+                    sh "${tool name: env.MVN_HOME, type: 'maven'}/bin/mvn clean package"
+                    sh "${tool name: env.MVN_HOME, type: 'maven'}/bin/mvn clean verify sonar:sonar"
+                    echo 'SonarQube Analysis Completed'
                 }
             }
         }
@@ -20,6 +26,41 @@ pipeline {
                 waitForQualityGate abortPipeline: true
                 echo 'Quality Gate Completed'
             }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    sh 'docker build -t MuhamadKholik23/customer-service .'
+                    echo 'Build Docker Image Completed'
+                }
+            }
+        }
+
+        stage('Docker Push') {
+            steps {
+                script {
+                    withCredentials([string(credentialsId: 'dockerHub-prod', variable: 'dockerHub-password')]) {
+                        // some block
+                    }
+                    sh 'docker push MuhamadKholik23/customer-service'
+                }
+            }
+        }
+
+        stage ('Docker Run') {
+            steps {
+                script {
+                    sh 'docker run -d --name customer-service -p 8099:8085 MuhamadKholik23/customer-service'
+                    echo 'Docker Run Completed'
+                }
+            }
+        }
+
+    }
+    post {
+        always {
+            sh 'docker logout'
         }
     }
 }
