@@ -26,7 +26,7 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    sh "${tool name: env.DOCKER_HOME}/bin/docker build -t muhamadkholik/customer-service"
+                    sh "${tool name: env.DOCKER_HOME}/bin/docker build -t muhamadkholik/customer-service ."
                     echo 'Build Docker Image Completed'
                 }
             }
